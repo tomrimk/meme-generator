@@ -4,7 +4,7 @@ import './index.css';
 import reportWebVitals from './reportWebVitals';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import Root, { loader as rootLoader } from './routes/Root';
-import Editor from './routes/Editor';
+import Editor, { loader as editorLoader } from './routes/Editor';
 
 const router = createBrowserRouter([
   {
@@ -15,7 +15,8 @@ const router = createBrowserRouter([
   {
     path: '/editor/:templateName',
     element: <Editor />,
-  }
+    loader: editorLoader,
+  },
 ]);
 
 const root = ReactDOM.createRoot(

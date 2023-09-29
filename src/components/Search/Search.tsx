@@ -30,7 +30,7 @@ export default function Search() {
         id='search'
         className={styles.input}
         type='text'
-        placeholder='Meme...'
+        placeholder='meme name...'
         value={value}
         onChange={(event: ChangeEvent<HTMLInputElement>) =>
           setValue(event.target.value)

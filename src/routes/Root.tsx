@@ -4,13 +4,10 @@ import Gallery from '../components/Gallery/Gallery';
 import Header from '../components/Header/Header';
 import { MemesContext } from '../contexts/memes-context';
 import Search from '../components/Search/Search';
+import { getMemes } from '../services/meme-service';
 
 export async function loader(): Promise<{ memes: Meme[] }> {
-  const { data } = await fetch('https://api.imgflip.com/get_memes', {
-    method: 'GET',
-  }).then((res) => res.json());
-
-  return { memes: data.memes };
+  return getMemes();
 }
 
 export default function Root() {
