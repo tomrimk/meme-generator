@@ -3,7 +3,8 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import reportWebVitals from './reportWebVitals';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
-import Root, { rootLoader } from './routes/Root';
+import Root, { loader as rootLoader } from './routes/Root';
+import Editor from './routes/Editor';
 
 const router = createBrowserRouter([
   {
@@ -11,6 +12,10 @@ const router = createBrowserRouter([
     element: <Root />,
     loader: rootLoader,
   },
+  {
+    path: '/editor/:templateName',
+    element: <Editor />,
+  }
 ]);
 
 const root = ReactDOM.createRoot(

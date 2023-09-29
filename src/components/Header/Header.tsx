@@ -1,7 +1,10 @@
-import Search from '../Search/Search';
 import styles from './Header.module.css';
 
-export default function Header() {
+type HeaderProps = {
+  actions?: JSX.Element;
+};
+
+export default function Header({ actions }: HeaderProps) {
   return (
     <header className={styles.container}>
       <div className={styles.product}>
@@ -9,7 +12,7 @@ export default function Header() {
         <p>Bring the best memes to your people</p>
       </div>
 
-      <Search />
+      {actions && actions}
     </header>
   );
 }
