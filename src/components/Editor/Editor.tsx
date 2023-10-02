@@ -1,66 +1,31 @@
 import { useNavigate } from 'react-router-dom';
 import { Meme } from '../../types/Meme';
-import { DragEvent, useReducer } from 'react';
+import { useCallback, useEffect, useReducer, useState, useRef } from 'react';
 import styles from './Editor.module.css';
+import TextNodeViewer from './TextNode/TextNodeViewer';
+import { MovingSettings, ResizingSettings } from './types/text-node';
+import { EDITOR_ACTIONS } from './constants/editor-actions';
+import { editorStore } from './store/editor-store';
 
 type EditorProps = {
   meme: Meme;
 };
 
-type TextNode = {
-  id: string;
-  value: string;
-  x: number;
-  y: number;
-  color: string;
-  width: number;
-  height: number;
-  fontSize: number;
-};
-
-type State = {
-  textNodes: TextNode[];
-};
-
-const reducer = (state: State, action: any) => {
-  switch (action.type) {
-    case 'UPDATE_TEXT_NODE': {
-      return {
-        ...state,
-        textNodes: state.textNodes.map((node) =>
-          node.id === action.payload.id ? action.payload : node,
-        ),
-      };
-    }
-    case 'ADD_TEXT_NODE': {
-      return {
-        ...state,
-        textNodes: [...state.textNodes, action.payload],
-      };
-    }
-    case 'REMOVE_TEXT_NODE': {
-      return {
-        ...state,
-        textNodes: state.textNodes.filter(
-          (node) => node.id !== action.payload.id,
-        ),
-      };
-    }
-    default: {
-      return state;
-    }
-  }
-};
-
 export default function Editor({ meme }: EditorProps) {
   const navigate = useNavigate();
-  const [state, dispatch] = useReducer(reducer, {
+  const [state, dispatch] = useReducer(editorStore, {
     textNodes: [],
   });
+  const [resizingSettings, setResizingSettings] =
+    useState<ResizingSettings | null>(null);
+  const [movingSettings, setMovingSettings] = useState<MovingSettings | null>(
+    null,
+  );
+  const imageRef = useRef<HTMLImageElement>(null);
 
   const addTextNode = () => {
     dispatch({
-      type: 'ADD_TEXT_NODE',
+      type: EDITOR_ACTIONS.ADD_TEXT_NODE,
       payload: {
         id: Date.now().toString(),
         value: '',
@@ -76,47 +41,143 @@ export default function Editor({ meme }: EditorProps) {
 
   const removeTextNode = (nodeId: string) => {
     dispatch({
-      type: 'REMOVE_TEXT_NODE',
+      type: EDITOR_ACTIONS.REMOVE_TEXT_NODE,
       payload: {
         id: nodeId,
       },
     });
   };
 
-  const handleTextNodeDragStart = (
-    event: DragEvent<HTMLDivElement>,
-    node: TextNode,
-  ) => {
-    event.dataTransfer.setData('text/plain', JSON.stringify(node));
-  };
+  const handleTextNodeResize = useCallback(
+    (event: MouseEvent) => {
+      if (!resizingSettings) {
+        return;
+      }
 
-  const getYValue = (clientY: number, top: number) => {
-    const y = clientY - top - 50;
+      const horizontalChange = resizingSettings!.startX - event.clientX;
+      const verticalChange = resizingSettings!.startY - event.clientY;
 
-    if (y < 0) {
-      return 0;
+      setResizingSettings({
+        ...resizingSettings,
+        ...(resizingSettings.handle === 'right' && { width: horizontalChange }),
+        ...(resizingSettings.handle === 'bottom' && { height: verticalChange }),
+      });
+    },
+    [resizingSettings],
+  );
+
+  const handleTextNodeMove = useCallback(
+    (event: MouseEvent) => {
+      if (!movingSettings) {
+        return;
+      }
+
+      const textNode = event.target as HTMLElement;
+      const parent = textNode.parentElement;
+
+      let horizontalChange = movingSettings!.startX - event.clientX;
+      let verticalChange = movingSettings!.startY - event.clientY;
+
+      const isXOutOfBounds =
+        textNode.offsetLeft + textNode.offsetWidth > parent?.clientWidth! ||
+        textNode.offsetLeft < 0;
+      const isYOutOfBounds =
+        textNode.offsetTop + textNode.offsetHeight > parent?.clientHeight! ||
+        textNode.offsetTop < 0;
+
+      setMovingSettings({
+        ...movingSettings,
+        ...(!isXOutOfBounds && { x: horizontalChange }),
+        ...(!isYOutOfBounds && { y: verticalChange }),
+      });
+    },
+    [movingSettings],
+  );
+
+  const handleMouseMove = useCallback(
+    (event: MouseEvent) => {
+      handleTextNodeResize(event);
+      handleTextNodeMove(event);
+    },
+    [handleTextNodeMove, handleTextNodeResize],
+  );
+
+  const handleMouseUp = useCallback(() => {
+    if (resizingSettings) {
+      dispatch({
+        type: EDITOR_ACTIONS.RESIZE_TEXT_NODE,
+        payload: {
+          id: resizingSettings.nodeId,
+          width: resizingSettings.width!,
+          height: resizingSettings.height!,
+        },
+      });
+
+      setResizingSettings(null);
     }
 
-    if (y >= 400) {
-      return 400;
+    if (movingSettings) {
+      dispatch({
+        type: EDITOR_ACTIONS.MOVE_TEXT_NODE,
+        payload: {
+          id: movingSettings!.nodeId,
+          x: movingSettings!.x,
+          y: movingSettings!.y,
+        },
+      });
+
+      setMovingSettings(null);
+    }
+  }, [movingSettings, resizingSettings]);
+
+  const handleMouseDown = useCallback((event: MouseEvent) => {
+    const elementId = (event.target as HTMLDivElement).id;
+
+    if (elementId.includes('resize-handle')) {
+      const [, , handle, nodeId] = elementId.split('-');
+
+      setResizingSettings({
+        nodeId: nodeId,
+        startX: event.clientX,
+        startY: event.clientY,
+        handle,
+      });
+
+      return;
     }
 
-    return y;
-  };
+    if (elementId.includes('node-container')) {
+      setMovingSettings({
+        nodeId: elementId.split('node-container-')[1],
+        startX: event.clientX,
+        startY: event.clientY,
+      });
+    }
+  }, []);
 
-  const handleTextNodeDrop = (event: DragEvent<HTMLImageElement>) => {
-    event.preventDefault();
-    const node = JSON.parse(event.dataTransfer.getData('text/plain'));
-    const rect = event.currentTarget.getBoundingClientRect();
+  useEffect(() => {
+    document.addEventListener('mousedown', handleMouseDown);
 
-    dispatch({
-      type: 'UPDATE_TEXT_NODE',
-      payload: {
-        ...node,
-        y: getYValue(event.clientY, rect.top),
-      },
-    });
-  };
+    return () => {
+      document.removeEventListener('mousedown', handleMouseDown);
+    };
+  }, [handleMouseDown]);
+
+  useEffect(() => {
+    document.addEventListener('mouseup', handleMouseUp);
+
+    return () => {
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [handleMouseUp]);
+
+  useEffect(() => {
+    document.addEventListener('mousemove', handleMouseMove);
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, [handleMouseMove]);
 
   return (
     <div className={styles.container}>
@@ -136,7 +197,7 @@ export default function Editor({ meme }: EditorProps) {
               value={node.value}
               onChange={(e) => {
                 dispatch({
-                  type: 'UPDATE_TEXT_NODE',
+                  type: EDITOR_ACTIONS.UPDATE_TEXT_NODE,
                   payload: { ...node, value: e.target.value },
                 });
               }}
@@ -146,7 +207,7 @@ export default function Editor({ meme }: EditorProps) {
               value={node.color}
               onChange={(e) => {
                 dispatch({
-                  type: 'UPDATE_TEXT_NODE',
+                  type: EDITOR_ACTIONS.UPDATE_TEXT_NODE,
                   payload: { ...node, color: e.target.value },
                 });
               }}
@@ -158,7 +219,7 @@ export default function Editor({ meme }: EditorProps) {
               value={node.fontSize}
               onChange={(e) => {
                 dispatch({
-                  type: 'UPDATE_TEXT_NODE',
+                  type: EDITOR_ACTIONS.UPDATE_TEXT_NODE,
                   payload: { ...node, fontSize: e.target.value },
                 });
               }}
@@ -173,33 +234,28 @@ export default function Editor({ meme }: EditorProps) {
       <div className={styles.content}>
         <div className={styles.imageContainer}>
           <img
-            onDragOver={(event) => {
-              event.preventDefault();
-            }}
-            onDrop={handleTextNodeDrop}
+            ref={imageRef}
             className={styles.image}
             src={meme.url}
             alt={meme.name}
+            draggable='false'
           />
 
-          {state.textNodes.map((node) => (
-            <div
-              key={node.id}
-              className={styles.node}
-              draggable
-              onDragStart={(event) => handleTextNodeDragStart(event, node)}
-              style={{
-                top: node.y,
-                left: node.x,
-                color: node.color,
-                width: `${node.width}px`,
-                height: `${node.height}px`,
-                fontSize: `${node.fontSize}px`,
-              }}
-            >
-              {node.value}
-            </div>
-          ))}
+          {state.textNodes.map((node) => {
+            return (
+              <TextNodeViewer
+                key={node.id}
+                node={node}
+                movingSettings={
+                  node.id === movingSettings?.nodeId ? movingSettings : null
+                }
+                resizingSettings={
+                  node.id === resizingSettings?.nodeId ? resizingSettings : null
+                }
+                containerRef={imageRef}
+              />
+            );
+          })}
         </div>
       </div>
     </div>

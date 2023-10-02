@@ -1,0 +1,32 @@
+.textNodeViewer {
+  position: absolute;
+  border: 1px dashed #000000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  cursor: move;
+  pointer-events: all;
+  user-select: none;
+}
+
+.resizeHandle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background-color: #ffffff;
+  border: 1px solid #000000;
+  z-index: 2;
+}
+
+.resizeHandleRight {
+  right: -5px;
+  top: 50%;
+  cursor: e-resize;
+}
+
+.resizeHandleBottom {
+  bottom: -5px;
+  left: 50%;
+  cursor: n-resize;
+}
