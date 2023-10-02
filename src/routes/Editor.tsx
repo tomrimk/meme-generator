@@ -1,7 +1,7 @@
 import { Params, redirect, useLoaderData } from 'react-router-dom';
 import Editor from '../components/Editor/Editor';
 import { getMemes } from '../services/meme-service';
-import { Meme } from '../types/Meme';
+import { Meme } from '../types/meme';
 
 export async function loader({
   params,

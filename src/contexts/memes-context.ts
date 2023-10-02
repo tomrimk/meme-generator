@@ -1,5 +1,5 @@
 import { createContext, useContext } from 'react';
-import { Meme } from '../types/Meme';
+import { Meme } from '../types/meme';
 
 export const MemesContext = createContext<Meme[]>([]);
 

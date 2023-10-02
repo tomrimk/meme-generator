@@ -1,18 +1,19 @@
-import { useNavigate } from 'react-router-dom';
-import { Meme } from '../../types/Meme';
+import { Link } from 'react-router-dom';
+import { Meme } from '../../types/meme';
 import { useCallback, useEffect, useReducer, useState, useRef } from 'react';
 import styles from './Editor.module.css';
 import TextNodeViewer from './TextNode/TextNodeViewer';
 import { MovingSettings, ResizingSettings } from './types/text-node';
 import { EDITOR_ACTIONS } from './constants/editor-actions';
 import { editorStore } from './store/editor-store';
+import TextNodeInput from './TextNode/TextNodeInput';
+import { createMeme } from '../../services/meme-service';
 
 type EditorProps = {
   meme: Meme;
 };
 
 export default function Editor({ meme }: EditorProps) {
-  const navigate = useNavigate();
   const [state, dispatch] = useReducer(editorStore, {
     textNodes: [],
   });
@@ -22,6 +23,23 @@ export default function Editor({ meme }: EditorProps) {
     null,
   );
   const imageRef = useRef<HTMLImageElement>(null);
+
+  const generateMeme = async () => {
+    const response = await createMeme({ meme, nodes: state.textNodes });
+
+    if (!response.data) {
+      return;
+    }
+
+    const link = document.createElement('a');
+    link.href = response.data.url;
+    link.download = meme.name;
+    link.target = '_blank';
+    link.rel = 'noreferrer,noopener';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   const addTextNode = () => {
     dispatch({
@@ -35,15 +53,6 @@ export default function Editor({ meme }: EditorProps) {
         height: 100,
         color: '#000000',
         fontSize: 50,
-      },
-    });
-  };
-
-  const removeTextNode = (nodeId: string) => {
-    dispatch({
-      type: EDITOR_ACTIONS.REMOVE_TEXT_NODE,
-      payload: {
-        id: nodeId,
       },
     });
   };
@@ -182,53 +191,34 @@ export default function Editor({ meme }: EditorProps) {
   return (
     <div className={styles.container}>
       <div className={styles.sidebar}>
-        <span onClick={() => navigate(-1)}>Back</span>
-        <h2>Editor</h2>
-        <p>Here you can edit your meme</p>
+        <div className={styles.header}>
+          <Link to='/'>
+            <span>Back</span>
+          </Link>
+          <h2>Editor</h2>
+          <p>Here you can edit your meme</p>
 
-        <button onClick={addTextNode}>Add text</button>
+          <button className={styles.newTextButton} onClick={addTextNode}>
+            Add text
+          </button>
+        </div>
 
-        {state.textNodes.map((node, index) => (
-          <div key={`input-${node.id}`} className={styles.inputContainer}>
-            <span>Text #{index + 1}</span>
-            <input
-              className={styles.textNode}
-              type='text'
-              value={node.value}
-              onChange={(e) => {
-                dispatch({
-                  type: EDITOR_ACTIONS.UPDATE_TEXT_NODE,
-                  payload: { ...node, value: e.target.value },
-                });
-              }}
+        <div className={styles.nodes}>
+          {state.textNodes.map((node, index) => (
+            <TextNodeInput
+              key={`input-${node.id}`}
+              dispatch={dispatch}
+              node={node}
+              index={index}
             />
-            <input
-              type='color'
-              value={node.color}
-              onChange={(e) => {
-                dispatch({
-                  type: EDITOR_ACTIONS.UPDATE_TEXT_NODE,
-                  payload: { ...node, color: e.target.value },
-                });
-              }}
-            />
-            <input
-              type='range'
-              min='10'
-              max='50'
-              value={node.fontSize}
-              onChange={(e) => {
-                dispatch({
-                  type: EDITOR_ACTIONS.UPDATE_TEXT_NODE,
-                  payload: { ...node, fontSize: e.target.value },
-                });
-              }}
-            />
-            <button type='button' onClick={() => removeTextNode(node.id)}>
-              Remove
-            </button>
-          </div>
-        ))}
+          ))}
+        </div>
+
+        <div className={styles.footer}>
+          <button className={styles.saveButton} onClick={generateMeme}>
+            Download meme
+          </button>
+        </div>
       </div>
 
       <div className={styles.content}>

@@ -1,5 +1,5 @@
 import { useLoaderData } from 'react-router-dom';
-import { Meme } from '../types/Meme';
+import { Meme } from '../types/meme';
 import Gallery from '../components/Gallery/Gallery';
 import Header from '../components/Header/Header';
 import { MemesContext } from '../contexts/memes-context';

@@ -30,3 +30,85 @@
   left: 50%;
   cursor: n-resize;
 }
+
+.textNodeInputContainer {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 12px 0;
+  box-shadow: 1px 1px 5px 0px rgba(0, 0, 0, 0.25);
+  background-color: #ffffff;
+}
+
+.textNodeInput {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: unset;
+  width: 100%;
+  height: 30px;
+  border: 1px solid #ccc;
+  padding: 0 5px;
+  border-radius: 3px;
+  outline: none;
+}
+
+.textNodeInputHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.buttonIcon {
+  border: unset;
+  cursor: pointer;
+  background-color: unset;
+}
+
+.buttonIcon:hover {
+  scale: 1.1;
+}
+
+.textNodeInputControls {
+  display: flex;
+  gap: 12px;
+}
+
+.labelledControl {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 4px;
+}
+
+.colorInput {
+  padding: 0;
+  background: unset;
+  width: 25px;
+  cursor: pointer;
+  overflow: hidden;
+  border-radius: 3px;
+  border: 1px solid #9293C9;
+}
+
+.colorInput::-webkit-color-swatch {
+  border: unset;
+  border-radius: 3px;
+  padding: 0;
+}
+
+.colorInput::-webkit-color-swatch-wrapper {
+  padding: 0;
+  width: 25px;
+  height: 25px;
+}
+
+.fontSizeInput {
+  height: 25px;
+  outline: none;
+  cursor: pointer;
+}

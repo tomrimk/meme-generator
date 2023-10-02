@@ -5,9 +5,14 @@ type State = {
   textNodes: TextNode[];
 };
 
+export type EditorStoreAction = {
+  type: EDITOR_ACTIONS;
+  payload: any;
+};
+
 export const editorStore = (
   state: State,
-  action: any,
+  action: EditorStoreAction,
 ) => {
   switch (action.type) {
     case EDITOR_ACTIONS.UPDATE_TEXT_NODE: {
