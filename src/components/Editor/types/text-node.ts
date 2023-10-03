@@ -1,5 +1,6 @@
 export type TextNode = {
   id: string;
+  title: string;
   value: string;
   x: number;
   y: number;

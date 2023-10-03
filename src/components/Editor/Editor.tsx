@@ -8,6 +8,7 @@ import { EDITOR_ACTIONS } from './constants/editor-actions';
 import { editorStore } from './store/editor-store';
 import TextNodeInput from './TextNode/TextNodeInput';
 import { createMeme } from '../../services/meme-service';
+import ErrorModal from './ErrorModal/ErrorModal';
 
 type EditorProps = {
   meme: Meme;
@@ -24,42 +25,41 @@ export default function Editor({ meme }: EditorProps) {
   );
   const [isDownloading, setIsDownloading] = useState(false);
   const imageRef = useRef<HTMLImageElement>(null);
+  const [error, setError] = useState<{ message: string } | null>(null);
 
-  const generateMeme = async () => {
-    setIsDownloading(true);
-    const response = await createMeme({ meme, nodes: state.textNodes });
-
-    if (!response.data) {
-      setIsDownloading(false);
-
-      return;
-    }
-
+  const openImage = (url: string) => {
     const link = document.createElement('a');
-    link.href = response.data.url;
+    link.href = url;
     link.download = meme.name;
     link.target = '_blank';
     link.rel = 'noreferrer,noopener';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
 
-    setIsDownloading(false);
+  const generateMeme = async () => {
+    setIsDownloading(true);
+    try {
+      const response = await createMeme({ meme, nodes: state.textNodes });
+
+      if (!response.data) {
+        setError({ message: response.error_message! });
+
+        return;
+      }
+
+      openImage(response.data.url);
+    } catch (error: any) {
+      setError(error);
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   const addTextNode = () => {
     dispatch({
       type: EDITOR_ACTIONS.ADD_TEXT_NODE,
-      payload: {
-        id: Date.now().toString(),
-        value: '',
-        x: 0,
-        y: 0,
-        width: 500,
-        height: 100,
-        color: '#000000',
-        fontSize: 50,
-      },
     });
   };
 
@@ -111,35 +111,38 @@ export default function Editor({ meme }: EditorProps) {
     [handleTextNodeMove, handleTextNodeResize],
   );
 
-  const handleMouseUp = useCallback((event: MouseEvent) => {
-    if (resizingSettings) {
-      dispatch({
-        type: EDITOR_ACTIONS.RESIZE_TEXT_NODE,
-        payload: {
-          id: resizingSettings.nodeId,
-          width: resizingSettings.width!,
-          height: resizingSettings.height!,
-        },
-      });
+  const handleMouseUp = useCallback(
+    (event: MouseEvent) => {
+      if (resizingSettings) {
+        dispatch({
+          type: EDITOR_ACTIONS.RESIZE_TEXT_NODE,
+          payload: {
+            id: resizingSettings.nodeId,
+            width: resizingSettings.width!,
+            height: resizingSettings.height!,
+          },
+        });
 
-      setResizingSettings(null);
-    }
+        setResizingSettings(null);
+      }
 
-    if (movingSettings) {
-      const element = event.target as HTMLDivElement;
-      
-      dispatch({
-        type: EDITOR_ACTIONS.MOVE_TEXT_NODE,
-        payload: {
-          id: movingSettings!.nodeId,
-          x: element.offsetLeft,
-          y: element.offsetTop,
-        },
-      });
+      if (movingSettings) {
+        const element = event.target as HTMLDivElement;
 
-      setMovingSettings(null);
-    }
-  }, [movingSettings, resizingSettings]);
+        dispatch({
+          type: EDITOR_ACTIONS.MOVE_TEXT_NODE,
+          payload: {
+            id: movingSettings!.nodeId,
+            x: element.offsetLeft,
+            y: element.offsetTop,
+          },
+        });
+
+        setMovingSettings(null);
+      }
+    },
+    [movingSettings, resizingSettings],
+  );
 
   const handleMouseDown = useCallback((event: MouseEvent) => {
     const element = event.target as HTMLDivElement;
@@ -208,12 +211,11 @@ export default function Editor({ meme }: EditorProps) {
         </div>
 
         <div className={styles.nodes}>
-          {state.textNodes.map((node, index) => (
+          {state.textNodes.map((node) => (
             <TextNodeInput
               key={`input-${node.id}`}
               dispatch={dispatch}
               node={node}
-              index={index}
             />
           ))}
         </div>
@@ -228,6 +230,8 @@ export default function Editor({ meme }: EditorProps) {
           </button>
         </div>
       </div>
+
+      {error && <ErrorModal error={error} onClose={() => setError(null)} />}
 
       <div className={styles.content}>
         <div className={styles.imageContainer} id='image-container'>

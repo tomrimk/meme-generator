@@ -37,7 +37,6 @@ const appendBoxesToSearchParams = (
       height: (node.height * heightRatio) / 2,
       color: node.color,
       outline_width: 0,
-      font: 'arial',
       font_size: Math.floor(node.fontSize),
       font_bold: 0,
       vertical_align: 'middle',
@@ -56,12 +55,15 @@ export async function createMeme({
 }: {
   meme: Meme;
   nodes: TextNode[];
-}): Promise<{ data?: { url: string; page_url: string } }> {
+}): Promise<{
+  data?: { url: string; page_url: string };
+  error_message?: string;
+}> {
   if (
     !process.env.REACT_APP_IMGFLIP_USERNAME ||
     !process.env.REACT_APP_IMGFLIP_PASSWORD
   ) {
-    throw new Error('Missing credentials for Imgflip API');
+    throw new Error('Missing credentials for Imgflip API. Make sure to add them to your .env file');
   }
 
   try {
@@ -69,16 +71,15 @@ export async function createMeme({
     url.searchParams.append('template_id', meme.id);
     url.searchParams.append('username', process.env.REACT_APP_IMGFLIP_USERNAME);
     url.searchParams.append('password', process.env.REACT_APP_IMGFLIP_PASSWORD);
+    url.searchParams.append('font', 'arial');
     appendBoxesToSearchParams(url, nodes, meme);
 
-    const { data } = await fetch(url, {
+    const response = await fetch(url, {
       method: 'POST',
     }).then((res) => res.json());
 
-    return { data };
+    return response;
   } catch (error) {
-    console.error(error);
-
-    return { data: undefined };
+    throw new Error('Error creating meme');
   }
 }

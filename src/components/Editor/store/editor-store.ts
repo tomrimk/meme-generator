@@ -1,7 +1,11 @@
 import { EDITOR_ACTIONS } from './../constants/editor-actions';
 import { TextNode } from '../types/text-node';
 import { getNumberMinMax } from '../../../utils/get-number-min-max';
-import { FONT_SCALE, MAX_FONT_SIZE, MIN_FONT_SIZE } from '../constants/text-node-constraints';
+import {
+  FONT_SCALE,
+  MAX_FONT_SIZE,
+  MIN_FONT_SIZE,
+} from '../constants/text-node-constraints';
 
 type State = {
   textNodes: TextNode[];
@@ -9,7 +13,19 @@ type State = {
 
 export type EditorStoreAction = {
   type: EDITOR_ACTIONS;
-  payload: any;
+  payload?: any;
+};
+
+const generateTitle = (textNodes: TextNode[]) => {
+  let count = textNodes.length + 1;
+  let title = `Text #${textNodes.length + 1}`;
+  const existingTitles = textNodes.map((node) => node.title);
+
+  do {
+    title = `Text #${count++}`;
+  } while (existingTitles.indexOf(title) !== -1);
+
+  return title;
 };
 
 export const editorStore = (state: State, action: EditorStoreAction) => {
@@ -25,7 +41,20 @@ export const editorStore = (state: State, action: EditorStoreAction) => {
     case EDITOR_ACTIONS.ADD_TEXT_NODE: {
       return {
         ...state,
-        textNodes: [...state.textNodes, action.payload],
+        textNodes: [
+          ...state.textNodes,
+          {
+            id: Date.now().toString(),
+            title: generateTitle(state.textNodes),
+            value: '',
+            x: 0,
+            y: 0,
+            width: 500,
+            height: 100,
+            color: '#000000',
+            fontSize: 50,
+          },
+        ],
       };
     }
     case EDITOR_ACTIONS.REMOVE_TEXT_NODE: {

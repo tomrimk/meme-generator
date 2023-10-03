@@ -7,13 +7,11 @@ import { IconTrash } from '@tabler/icons-react';
 
 type TextNodeInputProps = {
   node: TextNode;
-  index: number;
   dispatch: Dispatch<EditorStoreAction>;
 };
 
 export default function TextNodeInput({
   node,
-  index,
   dispatch,
 }: TextNodeInputProps) {
   const removeTextNode = (nodeId: string) => {
@@ -28,7 +26,7 @@ export default function TextNodeInput({
   return (
     <div className={styles.textNodeInputContainer}>
       <div className={styles.textNodeInputHeader}>
-        <span>Text #{index + 1}</span>
+        <span>{node.title}</span>
 
         <button
           className={styles.buttonIcon}
@@ -54,7 +52,9 @@ export default function TextNodeInput({
 
       <div className={styles.textNodeInputControls}>
         <div className={styles.labelledControl}>
-          <label htmlFor='color'>Color</label>
+          <label htmlFor='color' className={styles.srOnly}>
+            Color
+          </label>
           <input
             className={styles.colorInput}
             type='color'
@@ -67,14 +67,15 @@ export default function TextNodeInput({
               });
             }}
           />
+          <p>{node.color}</p>
         </div>
 
         <div className={styles.labelledControl}>
-          <label htmlFor='fontSize'>Font size</label>
+          <label htmlFor='fontSize' className={styles.srOnly}>Font size</label>
           <select
             name='fontSize'
             id='fontSize'
-            value={`${node.fontSize}`}
+            value={node.fontSize}
             className={styles.fontSizeInput}
             onChange={(e) => {
               dispatch({
