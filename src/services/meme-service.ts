@@ -22,22 +22,24 @@ const appendBoxesToSearchParams = (
   meme: Meme,
 ): void => {
   nodes.forEach((node, index) => {
-    const widthDifference = meme.width / MAX_TEXT_NODE_WIDTH;
-    const height = Math.abs((meme.height * MAX_TEXT_NODE_WIDTH) / meme.width);
-    const heightDifference = meme.height / height;
-    const y = node.y * heightDifference - node.height * heightDifference;
+    const widthRatio = meme.width / MAX_TEXT_NODE_WIDTH;
+    const originalHeight = Math.abs(
+      (meme.height * MAX_TEXT_NODE_WIDTH) / meme.width,
+    );
+    const heightRatio = meme.height / originalHeight;
+    const y = node.y * heightRatio + (node.height * heightRatio) / 4;
 
     const imgflipBox = {
       text: node.value.toLocaleUpperCase(),
-      x: node.x * widthDifference,
+      x: node.x * widthRatio,
       y: y < 0 ? 0 : y,
-      width: node.width * widthDifference,
-      height: node.height * heightDifference,
+      width: node.width * widthRatio,
+      height: (node.height * heightRatio) / 2,
       color: node.color,
       outline_width: 0,
       font: 'arial',
-      font_size: node.fontSize,
-      font_bold: 1,
+      font_size: Math.floor(node.fontSize),
+      font_bold: 0,
       vertical_align: 'middle',
       text_align: 'center',
     };

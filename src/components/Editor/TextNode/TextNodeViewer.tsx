@@ -1,7 +1,10 @@
 import { RefObject, useRef, useMemo } from 'react';
 import styles from './TextNode.module.css';
 import {
+  FONT_SCALE,
+  MAX_FONT_SIZE,
   MAX_TEXT_NODE_WIDTH,
+  MIN_FONT_SIZE,
   MIN_TEXT_NODE_HEIGHT,
   MIN_TEXT_NODE_WIDTH,
 } from '../constants/text-node-constraints';
@@ -76,12 +79,15 @@ export default function TextNodeViewer({
   }, [containerRef, node.width, node.height, resizingSettings]);
 
   const calculateFontSize = () => {
-    const scale = 0.2;
     const fontSize = resizingSettings
-      ? (node.width - (resizingSettings?.width || 0)) * scale
+      ? (node.width - (resizingSettings?.width || 0)) * FONT_SCALE
       : node.fontSize;
 
-    return `${getNumberMinMax({ value: fontSize, min: 10, max: 50 })}px`;
+    return `${getNumberMinMax({
+      value: fontSize,
+      min: MIN_FONT_SIZE,
+      max: MAX_FONT_SIZE,
+    })}px`;
   };
 
   return (

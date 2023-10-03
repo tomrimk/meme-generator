@@ -65,7 +65,9 @@ export default function Editor({ meme }: EditorProps) {
 
   const handleTextNodeResize = useCallback(
     (event: MouseEvent) => {
-      if (!resizingSettings) {
+      const element = event.target as HTMLDivElement;
+
+      if (!resizingSettings || !element.id) {
         return;
       }
 
@@ -83,27 +85,19 @@ export default function Editor({ meme }: EditorProps) {
 
   const handleTextNodeMove = useCallback(
     (event: MouseEvent) => {
-      if (!movingSettings) {
+      const element = event.target as HTMLDivElement;
+
+      if (!movingSettings || !element.id) {
         return;
       }
-
-      const textNode = event.target as HTMLElement;
-      const parent = textNode.parentElement;
 
       let horizontalChange = movingSettings!.startX - event.clientX;
       let verticalChange = movingSettings!.startY - event.clientY;
 
-      const isXOutOfBounds =
-        textNode.offsetLeft + textNode.offsetWidth > parent?.clientWidth! ||
-        textNode.offsetLeft < 0;
-      const isYOutOfBounds =
-        textNode.offsetTop + textNode.offsetHeight > parent?.clientHeight! ||
-        textNode.offsetTop < 0;
-
       setMovingSettings({
         ...movingSettings,
-        ...(!isXOutOfBounds && { x: horizontalChange }),
-        ...(!isYOutOfBounds && { y: verticalChange }),
+        x: horizontalChange,
+        y: verticalChange,
       });
     },
     [movingSettings],
@@ -117,7 +111,7 @@ export default function Editor({ meme }: EditorProps) {
     [handleTextNodeMove, handleTextNodeResize],
   );
 
-  const handleMouseUp = useCallback(() => {
+  const handleMouseUp = useCallback((event: MouseEvent) => {
     if (resizingSettings) {
       dispatch({
         type: EDITOR_ACTIONS.RESIZE_TEXT_NODE,
@@ -132,12 +126,14 @@ export default function Editor({ meme }: EditorProps) {
     }
 
     if (movingSettings) {
+      const element = event.target as HTMLDivElement;
+      
       dispatch({
         type: EDITOR_ACTIONS.MOVE_TEXT_NODE,
         payload: {
           id: movingSettings!.nodeId,
-          x: movingSettings!.x,
-          y: movingSettings!.y,
+          x: element.offsetLeft,
+          y: element.offsetTop,
         },
       });
 
@@ -146,10 +142,10 @@ export default function Editor({ meme }: EditorProps) {
   }, [movingSettings, resizingSettings]);
 
   const handleMouseDown = useCallback((event: MouseEvent) => {
-    const elementId = (event.target as HTMLDivElement).id;
+    const element = event.target as HTMLDivElement;
 
-    if (elementId.includes('resize-handle')) {
-      const [, , handle, nodeId] = elementId.split('-');
+    if (element.id.includes('resize-handle')) {
+      const [, , handle, nodeId] = element.id.split('-');
 
       setResizingSettings({
         nodeId: nodeId,
@@ -161,9 +157,9 @@ export default function Editor({ meme }: EditorProps) {
       return;
     }
 
-    if (elementId.includes('node-container')) {
+    if (element.id.includes('node-container')) {
       setMovingSettings({
-        nodeId: elementId.split('node-container-')[1],
+        nodeId: element.id.split('node-container-')[1],
         startX: event.clientX,
         startY: event.clientY,
       });
@@ -223,15 +219,20 @@ export default function Editor({ meme }: EditorProps) {
         </div>
 
         <div className={styles.footer}>
-          <button className={styles.saveButton} onClick={generateMeme} disabled={isDownloading}>
+          <button
+            className={styles.saveButton}
+            onClick={generateMeme}
+            disabled={isDownloading}
+          >
             {isDownloading ? 'Downloading...' : 'Download meme'}
           </button>
         </div>
       </div>
 
       <div className={styles.content}>
-        <div className={styles.imageContainer}>
+        <div className={styles.imageContainer} id='image-container'>
           <img
+            id='image'
             ref={imageRef}
             className={styles.image}
             src={meme.url}
