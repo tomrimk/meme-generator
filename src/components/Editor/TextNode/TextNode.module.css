@@ -8,6 +8,7 @@
   cursor: move;
   pointer-events: all;
   user-select: none;
+  text-transform: uppercase;
 }
 
 .resizeHandle {

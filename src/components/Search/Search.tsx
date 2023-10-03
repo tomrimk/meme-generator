@@ -4,6 +4,7 @@ import styles from './Search.module.css';
 import { useOutsideClick } from '../../hooks/use-outside-click';
 import { useDebounce } from 'use-debounce';
 import { Link } from 'react-router-dom';
+import { IconSearch } from '@tabler/icons-react';
 
 export default function Search() {
   const memes = useMemes();
@@ -23,24 +24,30 @@ export default function Search() {
 
   return (
     <div ref={dropdownRef} className={styles.container}>
-      <label htmlFor='search' className={styles.label}>
-        Search:
-      </label>
-      <input
-        id='search'
-        className={styles.input}
-        type='text'
-        placeholder='meme name...'
-        value={value}
-        onChange={(event: ChangeEvent<HTMLInputElement>) =>
-          setValue(event.target.value)
-        }
-      />
+      <div className={styles.inputWithIcon}>
+        <label htmlFor='search' className={styles.srOnly}>
+          Search:
+        </label>
+        <div className={styles.inputLeftSection}>
+          <IconSearch size={16} color='#757575' />
+        </div>
+        <input
+          id='search'
+          autoComplete='off'
+          className={styles.input}
+          type='text'
+          placeholder='Template name'
+          value={value}
+          onChange={(event: ChangeEvent<HTMLInputElement>) =>
+            setValue(event.target.value)
+          }
+        />
+      </div>
 
       {debouncedValue !== '' && (
         <div className={styles.dropdown}>
           {dropdownMemes.map((meme) => (
-            <Link key={meme.id} to={`/editor/${encodeURIComponent(meme.name)}`}>
+            <Link className={styles.dropdownLink} key={meme.id} to={`/editor/${encodeURIComponent(meme.name)}`}>
               <div className={styles.dropdownItem}>
                 <img
                   className={styles.dropdownImage}
