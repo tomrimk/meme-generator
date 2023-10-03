@@ -22,12 +22,16 @@ export default function Editor({ meme }: EditorProps) {
   const [movingSettings, setMovingSettings] = useState<MovingSettings | null>(
     null,
   );
+  const [isDownloading, setIsDownloading] = useState(false);
   const imageRef = useRef<HTMLImageElement>(null);
 
   const generateMeme = async () => {
+    setIsDownloading(true);
     const response = await createMeme({ meme, nodes: state.textNodes });
 
     if (!response.data) {
+      setIsDownloading(false);
+
       return;
     }
 
@@ -39,6 +43,8 @@ export default function Editor({ meme }: EditorProps) {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+
+    setIsDownloading(false);
   };
 
   const addTextNode = () => {
@@ -193,9 +199,11 @@ export default function Editor({ meme }: EditorProps) {
       <div className={styles.sidebar}>
         <div className={styles.header}>
           <Link to='/'>
-            <span>Back</span>
+            <span>Go back</span>
           </Link>
-          <h2>Editor</h2>
+          <h2>
+            TO<span className={styles.highlighted}>MEME</span> Editor
+          </h2>
           <p>Here you can edit your meme</p>
 
           <button className={styles.newTextButton} onClick={addTextNode}>
@@ -215,8 +223,8 @@ export default function Editor({ meme }: EditorProps) {
         </div>
 
         <div className={styles.footer}>
-          <button className={styles.saveButton} onClick={generateMeme}>
-            Download meme
+          <button className={styles.saveButton} onClick={generateMeme} disabled={isDownloading}>
+            {isDownloading ? 'Downloading...' : 'Download meme'}
           </button>
         </div>
       </div>

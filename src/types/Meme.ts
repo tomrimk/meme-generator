@@ -2,8 +2,8 @@ export type Meme = {
   id: string;
   name: string;
   url: string;
-  width: string;
-  height: string;
+  width: number;
+  height: number;
   box_count: {
     [key: number]: string;
   };

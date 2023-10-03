@@ -1,5 +1,6 @@
 import { TextNode } from './../components/Editor/types/text-node';
 import { Meme } from '../types/meme';
+import { MAX_TEXT_NODE_WIDTH } from '../components/Editor/constants/text-node-constraints';
 
 export async function getMemes(): Promise<{ memes: Meme[] }> {
   try {
@@ -15,15 +16,30 @@ export async function getMemes(): Promise<{ memes: Meme[] }> {
   }
 }
 
-const appendBoxesToSearchParams = (url: URL, nodes: TextNode[]): void => {
+const appendBoxesToSearchParams = (
+  url: URL,
+  nodes: TextNode[],
+  meme: Meme,
+): void => {
   nodes.forEach((node, index) => {
+    const widthDifference = meme.width / MAX_TEXT_NODE_WIDTH;
+    const height = Math.abs((meme.height * MAX_TEXT_NODE_WIDTH) / meme.width);
+    const heightDifference = meme.height / height;
+    const y = node.y * heightDifference - node.height * heightDifference;
+
     const imgflipBox = {
-      text: node.value,
-      x: node.x,
-      y: node.y,
-      width: node.width,
-      height: node.height,
+      text: node.value.toLocaleUpperCase(),
+      x: node.x * widthDifference,
+      y: y < 0 ? 0 : y,
+      width: node.width * widthDifference,
+      height: node.height * heightDifference,
       color: node.color,
+      outline_width: 0,
+      font: 'arial',
+      font_size: node.fontSize,
+      font_bold: 1,
+      vertical_align: 'middle',
+      text_align: 'center',
     };
 
     Object.entries(imgflipBox).forEach(([key, value]) => {
@@ -51,7 +67,7 @@ export async function createMeme({
     url.searchParams.append('template_id', meme.id);
     url.searchParams.append('username', process.env.REACT_APP_IMGFLIP_USERNAME);
     url.searchParams.append('password', process.env.REACT_APP_IMGFLIP_PASSWORD);
-    appendBoxesToSearchParams(url, nodes);
+    appendBoxesToSearchParams(url, nodes, meme);
 
     const { data } = await fetch(url, {
       method: 'POST',

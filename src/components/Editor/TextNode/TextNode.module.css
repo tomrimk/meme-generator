@@ -11,6 +11,15 @@
   text-transform: uppercase;
 }
 
+.textNodeViewerValue {
+  word-wrap: break-word;
+  word-break: break-all;
+  pointer-events: none;
+  font-family: Arial;
+  letter-spacing: -1px;
+  color: inherit;
+}
+
 .resizeHandle {
   position: absolute;
   width: 10px;

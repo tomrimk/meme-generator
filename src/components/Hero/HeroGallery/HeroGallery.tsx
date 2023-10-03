@@ -35,11 +35,11 @@ export default function HeroGallery({ memes }: HeroGalleryProps) {
           const meme = memes[memeIndex - 1];
 
           return (
-            <Link to={`/editor/${encodeURI(meme.name)}`}>
-              <div
-                key={`${rowIndex}-${colIndex}`}
-                className={styles.galleryItem}
-              >
+            <Link
+              key={`${rowIndex}-${colIndex}`}
+              to={`/editor/${encodeURI(meme.name)}`}
+            >
+              <div className={styles.galleryItem}>
                 <img className={styles.image} src={meme.url} alt={meme.name} />
 
                 <div className={styles.editAction}>

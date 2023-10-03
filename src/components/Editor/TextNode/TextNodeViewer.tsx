@@ -60,7 +60,7 @@ export default function TextNodeViewer({
     const width = getNumberMinMax({
       value: widthChange,
       min: MIN_TEXT_NODE_WIDTH,
-      max: MAX_TEXT_NODE_WIDTH,
+      max: MAX_TEXT_NODE_WIDTH - (nodeRef.current?.offsetLeft || 0),
     });
     const height = getNumberMinMax({
       value: heightChange,
@@ -73,7 +73,16 @@ export default function TextNodeViewer({
       width: `${width}px`,
       height: `${height}px`,
     };
-  }, [containerRef, node, resizingSettings]);
+  }, [containerRef, node.width, node.height, resizingSettings]);
+
+  const calculateFontSize = () => {
+    const scale = 0.2;
+    const fontSize = resizingSettings
+      ? (node.width - (resizingSettings?.width || 0)) * scale
+      : node.fontSize;
+
+    return `${getNumberMinMax({ value: fontSize, min: 10, max: 50 })}px`;
+  };
 
   return (
     <div
@@ -82,12 +91,12 @@ export default function TextNodeViewer({
       className={styles.textNodeViewer}
       style={{
         color: node.color,
-        fontSize: `${node.fontSize}px`,
+        fontSize: calculateFontSize(),
         ...nodePosition,
         ...nodeDimensions,
       }}
     >
-      {node.value}
+      <span className={styles.textNodeViewerValue}>{node.value}</span>
 
       <div
         id={`resize-handle-right-${node.id}`}
