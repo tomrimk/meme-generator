@@ -1,39 +1,45 @@
-# Meme Generator Project
-
-## Overview
-Hi there! Thanks for agreeing to complete this take-home assessment! If you've made it this far, that means we've enjoyed our initial conversations with you and want to see your skills in action!
-
-This take-home assessment is designed to gauge your knowledge of frontend development, your capabilities as a software engineer, and your product intuition. Through this fun meme generator project, we look forward to seeing your creativity and technical expertise shine!
+# Meme Generator Project - TOMEME
 
 ## Getting Started
-Clone the blank project setup from the provided repository which has the necessary dependencies installed.
+To test the project you should clone the project and run the following commands:
 
-## API
-Utilize the [Imgflip API](https://imgflip.com/api) to fetch meme templates and generate memes.
+```
+npm install
+or
+yarn install
+```
 
-## Requirements
+After that you can run the project with the following command:
 
-### Home Page
-- Fetch and display meme templates from the Imgflip API for users to browse.
-- Users should be able to select a meme template of their choice.
+```
+npm start
+or
+yarn start
+```
 
-### Meme Editor
-- Redirect users to a meme editor page upon template selection.
-- Allow users to add, position, and style text on the selected meme template.
+## Requirements for imgflip API
+To use the imgflip `caption_image` API for meme generation you need to create an account and get your own credentials. You can do that here: https://imgflip.com/signup
 
-### Meme Generation
-- Utilize the Imgflip API to generate a meme with custom text.
-- Provide a download button for users to download their created meme.
+After that you need to create a .env file in the root of the project and add the following variables:
 
-## Deliverables
-- A public repository hosting your working meme generator.
-- Include a README with setup instructions, assumptions, and any additional documentation you find necessary.
+```
+REACT_APP_IMGFLIP_USERNAME=your_username
+REACT_APP_IMGFLIP_PASSWORD=your_password
+```
 
-## Evaluation Criteria
-- Code Quality (readability, structure, best practices)
-- Functionality (meets the specified requirements)
-- User Interface (ease of use, aesthetic, responsive design)
-- Error handling and edge cases handling
-- Documentation (code comments, README, etc.)
+## Features
+- [x] Display top 100 meme templates
+- [x] Ability to search for a specific meme template
+- [x] Add text to the meme template
+- [x] Position the text
+- [x] Resize the text
+- [x] Change the color of the text
+- [x] Change the font size of the text
+- [x] Download generated meme
+- [x] Error handling
+- [x] Responsive design
 
-Ensure your submission is pushed to the repository before the specified deadline in the email. Good luck!
+## Things to improve
+- [ ] Add tests
+- [ ] Font size scaling when text is vertically overflown
+- [ ] Change text font family
