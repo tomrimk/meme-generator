@@ -8,9 +8,9 @@ export async function loader({
   params,
 }: {
   params: Params;
-}): Promise<Meme | undefined> {
+}): Promise<Meme | Response> {
   if (!params.templateName) {
-    return;
+    return redirect('/');
   }
 
   const { memes } = await getMemes();
@@ -18,22 +18,20 @@ export async function loader({
     (meme) => meme.name === decodeURI(params.templateName!),
   );
 
+  if (!selectedMeme) {
+    return redirect('/');
+  }
+
   return selectedMeme;
 }
 
 export default function EditorRoute() {
   const selectedMeme = useLoaderData() as Awaited<ReturnType<typeof loader>>;
 
-  if (!selectedMeme) {
-    redirect('/');
-
-    return null;
-  }
-
   return (
     <>
       <Header />
-      <Editor meme={selectedMeme} />
+      <Editor meme={selectedMeme as Meme} />
     </>
   );
 }
