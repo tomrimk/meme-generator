@@ -48,7 +48,7 @@ export default function Gallery() {
               className={styles.actions}
               to={`/editor/${encodeURI(meme.name)}`}
             >
-              <button className={styles.button}>Choose template</button>
+              <button className={styles.button}>Choose</button>
             </Link>
           </figure>
         ))}

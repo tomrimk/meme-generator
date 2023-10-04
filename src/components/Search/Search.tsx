@@ -44,7 +44,7 @@ export default function Search() {
         />
       </div>
 
-      {debouncedValue !== '' && (
+      {debouncedValue.length >= 2 && (
         <div className={styles.dropdown}>
           {dropdownMemes.map((meme) => (
             <Link className={styles.dropdownLink} key={meme.id} to={`/editor/${encodeURIComponent(meme.name)}`}>

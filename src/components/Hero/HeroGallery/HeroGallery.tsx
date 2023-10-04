@@ -1,3 +1,4 @@
+import useWindowSize from '../../../hooks/use-window-size';
 import { Meme } from '../../../types/meme';
 import styles from './HeroGallery.module.css';
 import { IconPencil } from '@tabler/icons-react';
@@ -11,16 +12,31 @@ const galleryModel = [
   [1, 1, 1, 1, 1, 1],
 ];
 
+const mobileGalleryModel = [
+  [1, 1, 1],
+  [0, 1, 1],
+  [0, 0, 1],
+  [0, 1, 1],
+  [1, 1, 1],
+];
+
 type HeroGalleryProps = {
   memes: Meme[];
 };
 
 export default function HeroGallery({ memes }: HeroGalleryProps) {
+  const { deviceType, width } = useWindowSize();
+  const galleryItems =
+    deviceType === 'mobile' ? mobileGalleryModel : galleryModel;
   let memeIndex = 0;
+
+  if (width < 825) {
+    return null;
+  }
 
   return (
     <div className={styles.container}>
-      {galleryModel.map((row, rowIndex) => {
+      {galleryItems.map((row, rowIndex) => {
         return row.map((col, colIndex) => {
           if (!col) {
             return (

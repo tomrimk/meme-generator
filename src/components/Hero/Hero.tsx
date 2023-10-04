@@ -29,9 +29,9 @@ export default function Hero({ memes }: HeroProps) {
         </p>
       </div>
 
-      <div>
+      <div className={styles.popularMemes}>
         <HeroGallery memes={memes} />
-        <h2 className={styles.popularMemes}>Most popular memes of {new Date().getFullYear()} </h2>
+        <h2 className={styles.popularMemesInfo}>Most popular memes of {new Date().getFullYear()} </h2>
       </div>
     </div>
   );
