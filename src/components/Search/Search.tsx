@@ -10,7 +10,7 @@ export default function Search() {
   const memes = useMemes();
   const [value, setValue] = useState('');
   const [debouncedValue] = useDebounce(value, 500);
-  const dropdownMemes = !!debouncedValue
+  const dropdownMemes = debouncedValue.length >= 2
     ? memes.filter((meme) => meme.name.toLowerCase().includes(debouncedValue))
     : [];
   const dropdownRef = useRef<HTMLDivElement>(null);

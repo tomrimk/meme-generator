@@ -1,13 +1,8 @@
-import { Meme } from '../../types/meme';
 import Search from '../Search/Search';
 import styles from './Hero.module.css';
 import HeroGallery from './HeroGallery/HeroGallery';
 
-type HeroProps = {
-  memes: Meme[];
-};
-
-export default function Hero({ memes }: HeroProps) {
+export default function Hero() {
   return (
     <div className={styles.container}>
       <div>
@@ -30,8 +25,10 @@ export default function Hero({ memes }: HeroProps) {
       </div>
 
       <div className={styles.popularMemes}>
-        <HeroGallery memes={memes} />
-        <h2 className={styles.popularMemesInfo}>Most popular memes of {new Date().getFullYear()} </h2>
+        <HeroGallery />
+        <h2 className={styles.popularMemesInfo}>
+          Most popular memes of {new Date().getFullYear()}{' '}
+        </h2>
       </div>
     </div>
   );

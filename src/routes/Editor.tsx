@@ -2,6 +2,7 @@ import { Params, redirect, useLoaderData } from 'react-router-dom';
 import Editor from '../components/Editor/Editor';
 import { getMemes } from '../services/meme-service';
 import { Meme } from '../types/meme';
+import Header from '../components/Header/Header';
 
 export async function loader({
   params,
@@ -29,5 +30,10 @@ export default function EditorRoute() {
     return null;
   }
 
-  return <Editor meme={selectedMeme} />;
+  return (
+    <>
+      <Header />
+      <Editor meme={selectedMeme} />
+    </>
+  );
 }

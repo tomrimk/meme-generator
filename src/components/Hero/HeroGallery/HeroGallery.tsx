@@ -1,5 +1,5 @@
+import { useMemes } from '../../../contexts/memes-context';
 import useWindowSize from '../../../hooks/use-window-size';
-import { Meme } from '../../../types/meme';
 import styles from './HeroGallery.module.css';
 import { IconPencil } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
@@ -20,11 +20,8 @@ const mobileGalleryModel = [
   [1, 1, 1],
 ];
 
-type HeroGalleryProps = {
-  memes: Meme[];
-};
-
-export default function HeroGallery({ memes }: HeroGalleryProps) {
+export default function HeroGallery() {
+  const memes = useMemes();
   const { deviceType, width } = useWindowSize();
   const galleryItems =
     deviceType === 'mobile' ? mobileGalleryModel : galleryModel;

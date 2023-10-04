@@ -16,7 +16,7 @@ export default function Root() {
     <div className='App'>
       <MemesContext.Provider value={memes}>
         <main>
-          <Hero memes={memes} />
+          <Hero />
           <Gallery />
         </main>
       </MemesContext.Provider>

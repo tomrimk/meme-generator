@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom';
 import { Meme } from '../../types/meme';
 import { useCallback, useEffect, useReducer, useState, useRef } from 'react';
 import styles from './Editor.module.css';
@@ -6,9 +5,7 @@ import TextNodeViewer from './TextNode/TextNodeViewer';
 import { MovingSettings, ResizingSettings } from './types/text-node';
 import { EDITOR_ACTIONS } from './constants/editor-actions';
 import { editorStore } from './store/editor-store';
-import TextNodeInput from './TextNode/TextNodeInput';
-import { createMeme } from '../../services/meme-service';
-import ErrorModal from './ErrorModal/ErrorModal';
+import Sidebar from './Sidebar/Sidebar';
 
 type EditorProps = {
   meme: Meme;
@@ -23,45 +20,7 @@ export default function Editor({ meme }: EditorProps) {
   const [movingSettings, setMovingSettings] = useState<MovingSettings | null>(
     null,
   );
-  const [isDownloading, setIsDownloading] = useState(false);
   const imageRef = useRef<HTMLImageElement>(null);
-  const [error, setError] = useState<{ message: string } | null>(null);
-
-  const openImage = (url: string) => {
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = meme.name;
-    link.target = '_blank';
-    link.rel = 'noreferrer,noopener';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
-  const generateMeme = async () => {
-    setIsDownloading(true);
-    try {
-      const response = await createMeme({ meme, nodes: state.textNodes });
-
-      if (!response.data) {
-        setError({ message: response.error_message! });
-
-        return;
-      }
-
-      openImage(response.data.url);
-    } catch (error: any) {
-      setError(error);
-    } finally {
-      setIsDownloading(false);
-    }
-  };
-
-  const addTextNode = () => {
-    dispatch({
-      type: EDITOR_ACTIONS.ADD_TEXT_NODE,
-    });
-  };
 
   const handleTextNodeResize = useCallback(
     (event: MouseEvent) => {
@@ -195,45 +154,9 @@ export default function Editor({ meme }: EditorProps) {
 
   return (
     <div className={styles.container}>
-      <div className={styles.sidebar}>
-        <div className={styles.header}>
-          <Link to='/'>
-            <span>Go back</span>
-          </Link>
-          <h2>
-            TO<span className={styles.highlighted}>MEME</span> Editor
-          </h2>
-          <p>Here you can edit your meme</p>
+      <Sidebar meme={meme} textNodes={state.textNodes} dispatch={dispatch} />
 
-          <button className={styles.newTextButton} onClick={addTextNode}>
-            Add text
-          </button>
-        </div>
-
-        <div className={styles.nodes}>
-          {state.textNodes.map((node) => (
-            <TextNodeInput
-              key={`input-${node.id}`}
-              dispatch={dispatch}
-              node={node}
-            />
-          ))}
-        </div>
-
-        <div className={styles.footer}>
-          <button
-            className={styles.saveButton}
-            onClick={generateMeme}
-            disabled={isDownloading}
-          >
-            {isDownloading ? 'Downloading...' : 'Download meme'}
-          </button>
-        </div>
-      </div>
-
-      {error && <ErrorModal error={error} onClose={() => setError(null)} />}
-
-      <div className={styles.content}>
+      <main className={styles.content}>
         <div className={styles.imageContainer} id='image-container'>
           <img
             id='image'
@@ -260,7 +183,7 @@ export default function Editor({ meme }: EditorProps) {
             );
           })}
         </div>
-      </div>
+      </main>
     </div>
   );
 }
